@@ -13,6 +13,12 @@ return new class extends Migration
     {
         Schema::create('pedidos', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('mecanica_id')->constrained('mecanicas')->onDelete('cascade');
+            $table->string('status')->default('pendente');
+            $table->decimal('valor_total', 10, 2)->default(0);
+            $table->string('endereco_entrega');
+            $table->string('metodo_pagamento');
+            $table->string('numero_nota_fiscal')->nullable();
             $table->timestamps();
         });
     }
