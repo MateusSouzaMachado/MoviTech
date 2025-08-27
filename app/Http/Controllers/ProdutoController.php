@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Produto;
+use App\Models\Estoque;
 
 class ProdutoController extends Controller
 {
@@ -21,6 +22,14 @@ class ProdutoController extends Controller
     public function store(Request $request)
     {
         $produto = Produto::create($request->all());
+    
+        // Cria o estoque vinculado ao produto
+        Estoque::create([
+            'produto_id' => $produto->id,
+            'quantidade' => $request->input('quantidade', 0), // valor inicial
+            'quantidade_minima' => $request->input('quantidade_minima', 1), // valor inicial
+        ]);
+    
         return response()->json($produto, 201);
     }
 
