@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Produto;
 use App\Models\Estoque;
+use App\Models\MovimentacaoEstoque;
 
 class ProdutoController extends Controller
 {

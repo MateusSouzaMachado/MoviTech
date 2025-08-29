@@ -48,6 +48,6 @@ class AdministradorController extends Controller
     public function destroy(string $id)
     {
             Administrador::destroy($id);
-            return response()->json(null, 204);
+            return response()->json(['message' => 'Administrador deletado com sucesso', 200]);
     }
 }

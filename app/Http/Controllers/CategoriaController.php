@@ -48,6 +48,6 @@ class CategoriaController extends Controller
     public function destroy(string $id)
     {
             Categoria::destroy($id);
-            return response()->json(null, 204);
+            return response()->json(['menssagem'=>'categoria deletada com sucesso', 204]);
     }
 }

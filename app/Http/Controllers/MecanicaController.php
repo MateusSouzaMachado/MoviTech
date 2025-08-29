@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\Mecanica;
 
 class MecanicaController extends Controller
 {
@@ -11,7 +12,7 @@ class MecanicaController extends Controller
      */
     public function index()
     {
-        //
+        return Mecanica::all();
     }
 
     /**
@@ -19,7 +20,8 @@ class MecanicaController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $mecanica = Mecanica::create($request->all());
+        return response()->json($mecanica, 201);
     }
 
     /**

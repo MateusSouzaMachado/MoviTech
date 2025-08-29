@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 class Administrador extends Model
 {
     use HasFactory;
@@ -14,4 +14,5 @@ class Administrador extends Model
     {
         return $this->hasMany(MovimentacaoEstoque::class, 'responsavel_id');
     }
+    protected $table = 'administradores';
 }
