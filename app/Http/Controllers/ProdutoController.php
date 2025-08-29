@@ -13,7 +13,8 @@ class ProdutoController extends Controller
      */
     public function index()
     {
-        return Produto::all();
+        return Produto::with('estoque')->get();
+        // return Produto::all();
     }
 
     /**
@@ -24,13 +25,21 @@ class ProdutoController extends Controller
         $produto = Produto::create($request->all());
     
         // Cria o estoque vinculado ao produto
-        Estoque::create([
+        $estoque = Estoque::create([
             'produto_id' => $produto->id,
             'quantidade' => $request->input('quantidade', 0), // valor inicial
             'quantidade_minima' => $request->input('quantidade_minima', 1), // valor inicial
         ]);
-    
-        return response()->json($produto, 201);
+
+        MovimentacaoEstoque::create([
+            'estoque_id' => $estoque->id,
+            'responsavel_id' => auth()->id(), // ou outro campo
+            'tipo' => 'entrada',
+            'quantidade' => $estoque->quantidade,
+            'motivo' => 'Cadastro inicial do produto',
+        ]);
+
+        return response()->json($produto->load('estoque.movimentacoes'), 201);
     }
 
     /**
@@ -38,7 +47,7 @@ class ProdutoController extends Controller
      */
     public function show(string $id)
     {
-        return Produto::findOrFail($id);
+        return Produto::with('estoque')->findOrFail($id);
     }
 
     /**
@@ -56,7 +65,14 @@ class ProdutoController extends Controller
      */
     public function destroy(string $id)
     {
-         Produto::destroy($id);
-        return response()->json(null, 204);
+        $produto = Produto::with('estoque.movimentacoes')->findOrFail($id);
+
+        if ($produto->estoque) {
+            $produto->estoque->movimentacoes()->delete();
+            $produto->estoque->delete();
+        }
+        $produto->delete();
+
+        return response()->json(['message' => 'Produto e estoque deletados com sucesso']);
     }
 }

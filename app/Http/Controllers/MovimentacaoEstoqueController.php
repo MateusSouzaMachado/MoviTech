@@ -3,16 +3,15 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Estoque;
 
-class EstoqueController extends Controller
+class MovimentacaoEstoqueController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        return Estoque::all();
+        //
     }
 
     /**
@@ -20,8 +19,7 @@ class EstoqueController extends Controller
      */
     public function store(Request $request)
     {
-        $estoque = Estoque::create($request->all());
-        return response()->json($estoque, 201);
+        //
     }
 
     /**
@@ -29,7 +27,7 @@ class EstoqueController extends Controller
      */
     public function show(string $id)
     {
-        return Estoque::findOrFail($id);
+        //
     }
 
     /**
@@ -37,7 +35,7 @@ class EstoqueController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        
+        //
     }
 
     /**

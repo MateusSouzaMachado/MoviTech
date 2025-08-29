@@ -12,4 +12,8 @@ class Estoque extends Model
     {
         return $this->belongsTo(Produto::class);
     }
+    public function movimentacoes()
+    {
+        return $this->hasMany(MovimentacaoEstoque::class);
+    }   
 }
