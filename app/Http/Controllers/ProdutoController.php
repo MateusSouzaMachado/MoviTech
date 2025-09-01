@@ -56,9 +56,27 @@ class ProdutoController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        $produto = Produto::findOrFail($id);
-        $produto->update($request->all());
-        return $produto;
+         $produto = Produto::findOrFail($id);
+
+        // Verifica se o produto está desativado
+        if (!$produto->ativo) {
+            return response()->json([
+                'message' => 'Não é possível atualizar um produto inativo.'
+            ], 403); // Código 403 significa "Proibido"
+        }
+
+        // Se o produto estiver ativo, continua com a validação e atualização
+        $validated = $request->validate([
+            'nome' => 'required|string|max:255',
+            // Adicione outras regras de validação para os campos que podem ser alterados
+        ]);
+
+         $produto->update($validated);
+
+        return response()->json([
+            'message' => 'Produto atualizado com sucesso!',
+            'produto' => $produto
+        ]);
     }
 
     /**
@@ -66,14 +84,13 @@ class ProdutoController extends Controller
      */
     public function destroy(string $id)
     {
-        $produto = Produto::with('estoque.movimentacoes')->findOrFail($id);
+    $produto = Produto::findOrFail($id);
+        
+        $produto->ativo = false;
+        $produto->save();
 
-        if ($produto->estoque) {
-            $produto->estoque->movimentacoes()->delete();
-            $produto->estoque->delete();
-        }
-        $produto->delete();
-
-        return response()->json(['message' => 'Produto e estoque deletados com sucesso']);
+        return response()->json([
+            'message' => 'Produto desativado com sucesso. O histórico de estoque foi preservado.'
+        ]);
     }
 }

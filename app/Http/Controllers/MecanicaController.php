@@ -29,7 +29,7 @@ class MecanicaController extends Controller
      */
     public function show(string $id)
     {
-        //
+        return Mecanica::findOrFail($id);
     }
 
     /**
@@ -37,7 +37,9 @@ class MecanicaController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $mecanica = Mecanica::findOrFail($id);
+        $mecanica->update($request->all());
+        return $mecanica;
     }
 
     /**
@@ -45,6 +47,7 @@ class MecanicaController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+            Mecanica::destroy($id);
+            return response()->json(['message' => 'Mecanica deletada com sucesso', 200]);
     }
 }
