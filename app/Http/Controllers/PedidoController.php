@@ -2,61 +2,92 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Pedido;
+use App\Services\PedidoService;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Exception;
 
 class PedidoController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+  
     public function index()
     {
-        //
+        
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
+    
     public function store(Request $request)
     {
-        $pedido = Pedido::create([
-            'user_id' => $request->user_id,
-            // outros campos do pedido
+     
+    
+        $request->validate([
+            'mecanica_id'      => 'required|exists:mecanicas,id',
+            'endereco_entrega' => 'required|string|max:255',
+            'metodo_pagamento' => 'required|string',
+            'items'            => 'required|array|min:1',
+            'items.*.produto_id' => 'required|exists:produtos,id',
+            'items.*.quantidade' => 'required|integer|min:1',
         ]);
-    
-        foreach ($request->itens as $item) {
-            ItemPedido::create([
-                'pedido_id' => $pedido->id,
-                'produto_id' => $item['produto_id'],
-                'quantidade' => $item['quantidade'],
-                // outros campos do item
-            ]);
-        }
-    
-        return response()->json($pedido->load('itensPedido'), 201);
+
+        $pedido = $pedidoService->criarPedido($request->all());
+
+        return response()->json($pedido->load('itensPedido.produto'), 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
+   
     public function show(string $id)
     {
-        //
+        $pedido = Pedido::with('itensPedido.produto')->findOrFail($id);
+        return response()->json($pedido);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
+   
     public function update(Request $request, string $id)
     {
-        //
+
+        $pedido = Pedido::with('itensPedido')->findOrFail($id);
+
+        if (Carbon::now()->diffInMinutes($pedido->created_at) > 30 || $pedido->status !== 'pendente') {
+            return response()->json(['error' => 'Pedido não pode mais ser alterado'], 403);
+        }
+
+        $request->validate([
+            'endereco_entrega' => 'sometimes|string|max:255',
+            'metodo_pagamento' => 'sometimes|string',
+            'items'            => 'required|array|min:1',
+            'items.*.produto_id' => 'required|exists:produtos,id',
+            'items.*.quantidade' => 'required|integer|min:1',
+        ]);
+
+        $pedido = $pedidoService->atualizarPedido($pedido, $request->all());
+
+        return response()->json($pedido->load('itensPedido.produto'));
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
+ 
     public function destroy(string $id)
     {
-        //
+        $pedido = Pedido::findOrFail($id);
+
+        if ($pedido->status !== 'pendente') {
+            return response()->json(['error' => 'Apenas pedidos pendentes podem ser cancelados'], 403);
+        }
+
+        $pedidoService->cancelarPedido($pedido);
+
+        return response()->json(['message' => 'Pedido cancelado com sucesso']);
+    }
+
+    public function confirmar($id, PedidoService $pedidoService)
+    {
+        $pedido = Pedido::with('itensPedido.produto')->findOrFail($id);
+        
+        try {
+            $pedidoService->confirmarPedido($pedido);
+            return response()->json(['success' => 'Pedido confirmado e estoque atualizado!']);
+        } catch (Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 400);
+        }
     }
 }
