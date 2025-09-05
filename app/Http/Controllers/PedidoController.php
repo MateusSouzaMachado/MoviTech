@@ -17,11 +17,11 @@ class PedidoController extends Controller
     }
 
     
-    public function store(Request $request)
+    public function store(Request $request, PedidoService $pedidoService)
     {
      
     
-        $request->validate([
+        $validatedData = $request->validate([
             'mecanica_id'      => 'required|exists:mecanicas,id',
             'endereco_entrega' => 'required|string|max:255',
             'metodo_pagamento' => 'required|string',
@@ -29,8 +29,7 @@ class PedidoController extends Controller
             'items.*.produto_id' => 'required|exists:produtos,id',
             'items.*.quantidade' => 'required|integer|min:1',
         ]);
-
-        $pedido = $pedidoService->criarPedido($request->all());
+        $pedido = $pedidoService->criarPedido($validatedData);
 
         return response()->json($pedido->load('itensPedido.produto'), 201);
     }

@@ -6,6 +6,7 @@ use App\Models\Mecanica;
 use App\Models\Pedido;
 use App\Models\ItemPedido;
 use Illuminate\Support\Facades\DB;
+use App\Models\Produto;
 
 class PedidoService
 {
@@ -19,17 +20,17 @@ class PedidoService
         return DB::transaction(function () use ($data){
 
             $pedido = Pedido::create([
-                'mecanica_id' => '$data'['mecanica_id'],
+                'mecanica_id' => $data['mecanica_id'],
                 'status' => 'pendente',
-                'endereco_entrega' => '$data'['endereco_entrega'],
-                'metodo_pagamento' => '$data'['metodo_pagamento'], 
+                'endereco_entrega' => $data['endereco_entrega'],
+                'metodo_pagamento' => $data['metodo_pagamento'], 
             ]);
 
             $valorTotal = 0;
 
-            foreach ($data ['itens'] as $item){
-                $produto = Mecanica::findOrFail($item['produto_id']);
-                $subtotal = $produto->preco * $item['qunatidade'];
+            foreach ($data ['items'] as $item){
+                $produto = Produto::findOrFail($item['produto_id']);
+                $subtotal = $produto->preco * $item['quantidade'];
                 $valorTotal += $subtotal;
 
                 ItemPedido::create([
