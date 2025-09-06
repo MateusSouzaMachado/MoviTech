@@ -16,7 +16,7 @@ class Pedido extends Model
         return $this->belongsTo(Mecanica::class);
     }
 
-    public function itens()
+    public function itensPedido()
     {
         return $this->hasMany(ItemPedido::class);
     }

@@ -14,6 +14,8 @@ Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
+Route::post('/pedidos/{id}/confirmar',[PedidoController::class, 'confirmar']);
+
 Route::apiResource('produtos', ProdutoController::class);
 Route::apiResource('categorias', CategoriaController::class);
 Route::apiResource('mecanicas', MecanicaController::class);
